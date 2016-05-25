@@ -65,6 +65,7 @@
     <Compile Include="AudioLogic\Coroutine.cs" />
     <Compile Include="AudioLogic\EVT.cs" />
     <Compile Include="AudioLogic\Hit.cs" />
+    <Compile Include="AudioLogic\HITDefinitions.cs" />
     <Compile Include="AudioLogic\HitResourcegroup.cs" />
     <Compile Include="AudioLogic\HitVM.cs" />
     <Compile Include="AudioLogic\HitException.cs" />

@@ -18,12 +18,6 @@ using System.Media;
 
 namespace Files.AudioFiles
 {
-    public enum SoundType
-    {
-        Mono = 0x00,
-        Stereo = 0x01
-    }
-
     /// <summary>
     /// Represents a *.xa file.
     /// It is used to store compressed wav data.
@@ -50,6 +44,19 @@ namespace Files.AudioFiles
         private uint m_AvgByteRate;      //average byte rate for the file (equal to (dwSampleRate)*(wAlign)). Note that this also corresponds to the decompressed output audio stream.
         private ushort m_Align;          //the sample align value for the file (equal to (wBits/8)*(wChannels)). Again, this corresponds to the decompressed output audio stream.
         private ushort m_Bits;           //resolution of the file (8 (8-bit), 16 (16-bit), etc.).
+
+        /// <summary>
+        /// Is this a mono sound?
+        /// </summary>
+        /// <returns>Yes for mono, no for stereo.</returns>
+        public bool IsMono()
+        {
+            //XA can be mono or stereo, XAI is stereo, XAJ is mono.
+            if (!m_ID.Equals("XA", StringComparison.InvariantCultureIgnoreCase))
+                return m_ID.Equals("XAI", StringComparison.InvariantCultureIgnoreCase) ? true : false;
+            else
+                return m_Channels == 1 ? true : false;
+        }
 
         /// <summary>
         /// Returns the sample rate for the wav data that makes up this sound.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework.Audio;
 using System.IO;
+using Files.AudioFiles;
 
 namespace Files.AudioLogic
 {
@@ -17,9 +18,10 @@ namespace Files.AudioLogic
         /// <param name="WavData">The wav data for this sound.</param>
         /// <param name="SampleRate">The sample rate of the data.</param>
         /// <param name="LoopIt">Wether or not to loop the sound.</param>
-        public static SoundEffectInstance PlaySound(byte[] WavData, uint SampleRate, bool LoopIt = false)
+        public static SoundEffectInstance PlaySound(ISoundCodec Sound, bool LoopIt = false)
         {
-            SoundEffect Efx = new SoundEffect(WavData, (int)SampleRate / 2, AudioChannels.Stereo);
+            SoundEffect Efx = new SoundEffect(Sound.DecompressedWav(), (int)Sound.GetSampleRate(), 
+                Sound.IsMono() == true ? AudioChannels.Mono : AudioChannels.Stereo);
             SoundEffectInstance Inst = Efx.CreateInstance();
 
             if (LoopIt)

@@ -317,8 +317,7 @@ namespace Files.AudioLogic
                             if (m_CurrentSound != null)
                             {
                                 SetVariable(Dest, m_Notes.Count - 1);
-                                Inst = SoundPlayer.PlaySound(m_CurrentSound.DecompressedWav(), 
-                                    m_CurrentSound.GetSampleRate() / 2);
+                                Inst = SoundPlayer.PlaySound(m_CurrentSound);
                                 m_Notes.Add(new HITNoteEntry(m_SoundID, Inst));
                             }
                             else
@@ -563,11 +562,17 @@ namespace Files.AudioLogic
 
                             for(int i = 0; i < m_Notes.Count; i++)
                             {
-                                //TODO: Find out what HITPerson means...
-                                if (m_Notes[i].Instance.State == SoundState.Playing)
+                                if (Src == (int)HITPerson.Instance)
                                 {
-                                    m_Notes[i].Instance.Stop();
-                                    m_Notes[i].Instance.Dispose();
+                                    if (m_Notes[i].Instance.State == SoundState.Playing)
+                                    {
+                                        m_Notes[i].Instance.Stop();
+                                        m_Notes[i].Instance.Dispose();
+                                    }
+                                }
+                                else
+                                {
+                                    //Delete all threads created by a particular object (Src == ObjectID)
                                 }
                             }
 
@@ -661,8 +666,7 @@ namespace Files.AudioLogic
                             m_CurrentSound = FileManager.GetSound(m_SoundID);
 
                             SetVariable(Dest, m_Notes.Count - 1);
-                            Inst = SoundPlayer.PlaySound(m_CurrentSound.DecompressedWav(), 
-                                m_CurrentSound.GetSampleRate() / 2, true);
+                            Inst = SoundPlayer.PlaySound(m_CurrentSound, true);
                             m_Notes.Add(new HITNoteEntry(m_SoundID, Inst));
 
                             break;
@@ -672,7 +676,7 @@ namespace Files.AudioLogic
             else
             {
                 ISoundCodec Snd = FileManager.GetSound(m_SoundID);
-                Inst = SoundPlayer.PlaySound(Snd.DecompressedWav(), Snd.GetSampleRate(), false);
+                Inst = SoundPlayer.PlaySound(Snd);
                 m_Notes.Add(new HITNoteEntry(m_SoundID, Inst));
                 //TODO: Kill this thread...
                 yield return true;

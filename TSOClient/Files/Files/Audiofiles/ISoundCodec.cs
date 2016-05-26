@@ -7,6 +7,12 @@ namespace Files.AudioFiles
     public interface ISoundCodec
     {
         /// <summary>
+        /// Is this a mono sound?
+        /// </summary>
+        /// <returns>Yes for mono, no for stereo.</returns>
+        bool IsMono();
+
+        /// <summary>
         /// Returns the sample rate for the wav data that makes up this sound.
         /// </summary>
         /// <returns>A uint denoting the sample rate of the wav data that makes up this sound.</returns>

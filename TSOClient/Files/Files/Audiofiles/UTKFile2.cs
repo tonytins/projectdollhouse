@@ -115,6 +115,15 @@ namespace Files.AudioFiles
         private float[] m_DecompressedFrame = new float[756];
 
         /// <summary>
+        /// Is this a mono sound?
+        /// </summary>
+        /// <returns>Yes for mono, no for stereo.</returns>
+        public bool IsMono()
+        {
+            return true;
+        }
+
+        /// <summary>
         /// Returns the sample rate for the wav data that makes up this sound.
         /// </summary>
         /// <returns>A uint denoting the sample rate of the wav data that makes up this sound.</returns>

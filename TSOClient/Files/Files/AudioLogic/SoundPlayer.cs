@@ -17,7 +17,7 @@ namespace Files.AudioLogic
         /// <param name="WavData">The wav data for this sound.</param>
         /// <param name="SampleRate">The sample rate of the data.</param>
         /// <param name="LoopIt">Wether or not to loop the sound.</param>
-        public static void PlaySound(byte[] WavData, uint SampleRate, bool LoopIt = false)
+        public static SoundEffectInstance PlaySound(byte[] WavData, uint SampleRate, bool LoopIt = false)
         {
             SoundEffect Efx = new SoundEffect(WavData, (int)SampleRate / 2, AudioChannels.Stereo);
             SoundEffectInstance Inst = Efx.CreateInstance();
@@ -26,6 +26,8 @@ namespace Files.AudioLogic
                 Inst.IsLooped = true;
 
             Inst.Play();
+
+            return Inst;
         }
     }
 

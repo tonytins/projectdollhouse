@@ -14,6 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Xna.Framework.Audio;
 using Files.AudioFiles;
 using Files.Manager;
 using System.Diagnostics;
@@ -23,12 +24,12 @@ namespace Files.AudioLogic
     public class HITNoteEntry
     {
         public uint SoundID;
-        public ISoundCodec Sound;
+        public SoundEffectInstance Instance;
 
-        public HITNoteEntry(uint ID, ISoundCodec Snd)
+        public HITNoteEntry(uint ID, SoundEffectInstance Inst)
         {
             SoundID = ID;
-            Sound = Snd;
+            Instance = Inst;
         }
     }
 
@@ -56,6 +57,7 @@ namespace Files.AudioLogic
         private TRK m_Track;
         private List<HITNoteEntry> m_Notes = new List<HITNoteEntry>();
         private uint m_SoundID = 0;
+        private ISoundCodec m_CurrentSound;
 
         /// <summary>
         /// Creates a new SubRoutine instance.
@@ -294,6 +296,7 @@ namespace Files.AudioLogic
             byte Datafield = 0; //Used by set/getsrcdatafield.
             byte TrackID = 0, Dest = 0;
             int Src = 0;
+            SoundEffectInstance Inst;
 
             if (!SimpleMode)
             {
@@ -309,14 +312,14 @@ namespace Files.AudioLogic
                             if (m_SoundID == 0)
                                 m_SoundID = m_Track.SoundID;
 
-                            ISoundCodec Snd = FileManager.GetSound(m_SoundID);
+                            m_CurrentSound = FileManager.GetSound(m_SoundID);
 
-                            if (Snd != null)
+                            if (m_CurrentSound != null)
                             {
-                                m_Notes.Add(new HITNoteEntry(m_SoundID, Snd));
-
                                 SetVariable(Dest, m_Notes.Count - 1);
-                                SoundPlayer.PlaySound(Snd.DecompressedWav(), Snd.GetSampleRate());
+                                Inst = SoundPlayer.PlaySound(m_CurrentSound.DecompressedWav(), 
+                                    m_CurrentSound.GetSampleRate() / 2);
+                                m_Notes.Add(new HITNoteEntry(m_SoundID, Inst));
                             }
                             else
                                 Debug.WriteLine("SubRoutine.cs: Couldn't find sound " + m_SoundID);
@@ -558,6 +561,16 @@ namespace Files.AudioLogic
                                    //variable.
                             Src = ReadByte();
 
+                            for(int i = 0; i < m_Notes.Count; i++)
+                            {
+                                //TODO: Find out what HITPerson means...
+                                if (m_Notes[i].Instance.State == SoundState.Playing)
+                                {
+                                    m_Notes[i].Instance.Stop();
+                                    m_Notes[i].Instance.Dispose();
+                                }
+                            }
+
                             break;
                         case 0x47: //seqgroup_return - unknown.
                             byte Group = ReadByte();
@@ -645,11 +658,12 @@ namespace Files.AudioLogic
                                    //it indefinitely.
                             Dest = ReadByte();
 
-                            HITNoteEntry Note = new HITNoteEntry(m_SoundID, FileManager.GetSound(m_SoundID));
-                            m_Notes.Add(Note);
+                            m_CurrentSound = FileManager.GetSound(m_SoundID);
 
                             SetVariable(Dest, m_Notes.Count - 1);
-                            SoundPlayer.PlaySound(Note.Sound.DecompressedWav(), Note.Sound.GetSampleRate(), true);
+                            Inst = SoundPlayer.PlaySound(m_CurrentSound.DecompressedWav(), 
+                                m_CurrentSound.GetSampleRate() / 2, true);
+                            m_Notes.Add(new HITNoteEntry(m_SoundID, Inst));
 
                             break;
                     }
@@ -658,7 +672,9 @@ namespace Files.AudioLogic
             else
             {
                 ISoundCodec Snd = FileManager.GetSound(m_SoundID);
-                SoundPlayer.PlaySound(Snd.DecompressedWav(), Snd.GetSampleRate(), false);
+                Inst = SoundPlayer.PlaySound(Snd.DecompressedWav(), Snd.GetSampleRate(), false);
+                m_Notes.Add(new HITNoteEntry(m_SoundID, Inst));
+                //TODO: Kill this thread...
                 yield return true;
             }
         }
